@@ -4,11 +4,30 @@
 #include <string>
 #include <vector>
 
+class IncorrectFormatException : public std::exception {
+public:
+	IncorrectFormatException(const std::string& msg) : message(msg + ": incorrect format error") {}
+	const char* what() const override {
+		return message.c_str();
+	}
+private:
+	std::string message;
+};
+
+class IncorrectSizeException : public std::exception {
+public:
+	IncorrectSizeException(const std::string& msg) : message(msg + ": incorrect size error") {}
+	const char* what() const override {
+		return message.c_str();
+	}
+private:
+	std::string message;
+};
+
 std::vector<std::string> names;
 std::vector<std::vector<double>> values;
 
-void remove_whitespaces(std::string& str)
-{
+void remove_whitespaces(std::string& str) {
 	std::stringstream ss;
 	ss << str;
 	str.clear();
@@ -18,8 +37,7 @@ void remove_whitespaces(std::string& str)
 	}
 }
 
-void parse_file(const char* filename)
-{
+void parse_file(const char* filename) {
 	std::ifstream in(filename);
 	if (!in.is_open())
 		throw  std::ios_base::failure("Error! The file was not opened");
@@ -43,18 +61,23 @@ void parse_file(const char* filename)
 			double x;
 			ss >> x;
 			if (ss.fail())
-				throw std::ios_base::failure("Error! Incorrect format");
+				throw IncorrectFormatException(
+					"Error! Incorrect format: row = " + std::to_string(values.size() + 2) +
+					", col = " + std::to_string(temp_vec.size() + 1)
+				);
 			temp_vec.push_back(x);
 			ss.ignore(std::numeric_limits<std::streamsize>::max(), ',');
 		}
 		if (temp_vec.size() != names.size())
-			throw std::ios_base::failure("Error! Incorrect number of elements");
+			throw IncorrectSizeException(
+				"Error! Number of elements != ncol: row = " +
+				std::to_string(values.size() + 2)
+			);
 		values.push_back(temp_vec);
 	}
 }
 
-void print_data()
-{
+void print_data() {
 	for (int i = 0; i < names.size(); ++i)
 		std::cout << names[i] << ' ';
 	std::cout << '\n';
