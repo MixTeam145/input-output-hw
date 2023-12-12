@@ -7,7 +7,7 @@
 class IncorrectFormatException : public std::exception {
 public:
 	IncorrectFormatException(const std::string& msg) : message(msg + ": incorrect format error") {}
-	const char* what() const override {
+	const char* what() const noexcept override {
 		return message.c_str();
 	}
 private:
@@ -17,7 +17,7 @@ private:
 class IncorrectSizeException : public std::exception {
 public:
 	IncorrectSizeException(const std::string& msg) : message(msg + ": incorrect size error") {}
-	const char* what() const override {
+	const char* what() const noexcept override {
 		return message.c_str();
 	}
 private:
